@@ -245,8 +245,14 @@ void
 ly_log_location(const struct ly_ctx *ctx, const struct lysc_node *scnode, const struct lyd_node *dnode,
         const char *path, const struct ly_in *in, uint64_t line, ly_bool reset)
 {
-    struct ly_log_location_s *loc = pthread_getspecific(ctx->log_location_key);
+    struct ly_log_location_s *loc;
 
+    if (!ctx) {
+        /* nothing to do */
+        return;
+    }
+
+    loc = pthread_getspecific(ctx->log_location_key);
     if (!loc) {
         reset = 0; /* no needed */
         loc = calloc(1, sizeof *loc);
@@ -290,9 +296,14 @@ void
 ly_log_location_revert(const struct ly_ctx *ctx, uint32_t scnode_steps, uint32_t dnode_steps,
         uint32_t path_steps, uint32_t in_steps)
 {
+    struct ly_log_location_s *loc;
 
-    struct ly_log_location_s *loc = pthread_getspecific(ctx->log_location_key);
+    if (!ctx) {
+        /* nothing to do */
+        return;
+    }
 
+    loc = pthread_getspecific(ctx->log_location_key);
     if (!loc) {
         return;
     }
