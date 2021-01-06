@@ -168,6 +168,7 @@ lyd_validate_unres_when(struct lyd_node **tree, const struct lys_module *mod, st
     uint32_t i;
     const struct lysc_when *disabled;
     struct lyd_node *node = NULL;
+    const struct ly_ctx *ctx = NULL;
 
     if (!node_when->count) {
         return LY_SUCCESS;
@@ -177,7 +178,8 @@ lyd_validate_unres_when(struct lyd_node **tree, const struct lys_module *mod, st
     do {
         --i;
         node = node_when->dnodes[i];
-        LOG_LOCSET(LYD_CTX(node), node->schema, node, NULL, NULL);
+        ctx = LYD_CTX(node);
+        LOG_LOCSET(ctx, node->schema, node, NULL, NULL);
 
         /* evaluate all when expressions that affect this node's existence */
         ret = lyd_validate_node_when(*tree, node, node->schema, &disabled);
@@ -211,13 +213,13 @@ lyd_validate_unres_when(struct lyd_node **tree, const struct lys_module *mod, st
             goto error;
         }
 
-        LOG_LOCBACK(LYD_CTX(node), 1, 1, 0, 0);
+        LOG_LOCBACK(ctx, 1, 1, 0, 0);
     } while (i);
 
     return LY_SUCCESS;
 
 error:
-    LOG_LOCBACK(LYD_CTX(node), 1, 1, 0, 0);
+    LOG_LOCBACK(ctx, 1, 1, 0, 0);
     return ret;
 }
 
